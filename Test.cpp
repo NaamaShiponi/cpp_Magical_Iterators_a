@@ -1,5 +1,5 @@
 #include "doctest.h"
-#include "sources/MagicalContainer.h"
+#include "sources/MagicalContainer.hpp"
 #include <stdexcept>
 #include <iostream>
 

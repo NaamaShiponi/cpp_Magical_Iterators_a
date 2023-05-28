@@ -1,4 +1,6 @@
-#include "MagicalContainer.h"
+
+
+#include "MagicalContainer.hpp"
 #include <algorithm>
 
 void MagicalContainer::addElement(int element) {
