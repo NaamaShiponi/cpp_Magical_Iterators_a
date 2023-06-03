@@ -3,271 +3,236 @@
 #include <stdexcept>
 #include <iostream>
 
-TEST_CASE("Tests")
+using namespace ariel;
+
+TEST_CASE("Adding elements")
 {
-    SUBCASE("Test adding elements and size")
+    // Creating an instance of MagicalContainer
+    MagicalContainer container;
+    
+    // Adding an element to the container
+    container.addElement(42);
+    
+    // Checking if the container size is 1
+    CHECK(container.size() == 1);
+
+    // Adding three more elements to the container
+    container.addElement(10);
+    container.addElement(20);
+    container.addElement(30);
+    
+    // Checking if the container size is 4
+    CHECK(container.size() == 4);
+}
+
+TEST_CASE("Removing elements")
+{
+    // Creating an instance of MagicalContainer
+    MagicalContainer container;
+    
+    // Adding four elements to the container
+    container.addElement(42);
+    container.addElement(10);
+    container.addElement(20);
+    container.addElement(30);
+    
+    // Removing an element from the container
+    container.removeElement(10);
+    
+    // Checking if the container size is 3
+    CHECK(container.size() == 3);
+
+    // Checking if removing a non-existent element throws a std::runtime_error
+    CHECK_THROWS_AS(container.removeElement(50), std::runtime_error);
+    
+    // Checking if the container size is still 3
+    CHECK(container.size() == 3);
+}
+
+TEST_CASE("Ascending iterator")
+{
+    // Creating an instance of MagicalContainer
+    MagicalContainer container;
+    
+    // Adding four elements to the container
+    container.addElement(42);
+    container.addElement(10);
+    container.addElement(20);
+    container.addElement(30);
+    
+    // Creating an array of expected values
+    int expected[] = {10, 20, 30, 42};
+    int index = 0;
+    MagicalContainer::AscendingIterator it(container);
+
+    // Iterating over the container using an ascending iterator
+    while (*it != *(container.end()))
     {
-        MagicalContainer container;
-        CHECK(container.size() == 0);
-
-        container.addElement(5);
-        CHECK(container.size() == 1);
-
-        container.addElement(10);
-        CHECK(container.size() == 2);
-
-        container.addElement(15);
-        CHECK(container.size() == 3);
-    }
-
-    SUBCASE("Test removing elements and size")
-    {
-        MagicalContainer container;
-        container.addElement(5);
-        container.addElement(10);
-        container.addElement(15);
-
-        CHECK(container.size() == 3);
-
-        container.removeElement(10);
-        CHECK(container.size() == 2);
-
-        container.removeElement(5);
-        CHECK(container.size() == 1);
-
-        container.removeElement(15);
-        CHECK(container.size() == 0);
-    }
-
-    SUBCASE("Test AscendingIterator")
-    {
-        MagicalContainer container;
-        container.addElement(5);
-        container.addElement(10);
-        container.addElement(3);
-
-        AscendingIterator ascIterator(container);
-
-        int expectedValues[] = {3, 5, 10};
-        int index = 0;
-        for (int *it = ascIterator.begin(); it != ascIterator.end(); ++it)
-        {
-            CHECK(*it == expectedValues[index]);
-            ++index;
-        }
-    }
-
-    SUBCASE("Test SideCrossIterator")
-    {
-        MagicalContainer container;
-        container.addElement(5);
-        container.addElement(10);
-        container.addElement(3);
-
-        SideCrossIterator sideCrossIterator(container);
-
-        int expectedValues[] = {5, 10, 3};
-        int index = 0;
-        for (int *it = sideCrossIterator.begin(); it != sideCrossIterator.end(); ++it)
-        {
-            CHECK(*it == expectedValues[index]);
-            ++index;
-        }
-    }
-
-    SUBCASE("Test PrimeIterator")
-    {
-        MagicalContainer container;
-        container.addElement(7);
-        container.addElement(15);
-        container.addElement(11);
-        container.addElement(4);
-
-        PrimeIterator primeIterator(container);
-
-        int expectedValues[] = {7, 11};
-        int index = 0;
-        for (int *it = primeIterator.begin(); it != primeIterator.end(); ++it)
-        {
-            CHECK(*it == expectedValues[index]);
-            ++index;
-        }
-    }
-
-    SUBCASE("Test PrimeIterator with empty container")
-    {
-        MagicalContainer container;
-
-        PrimeIterator primeIterator(container);
-
-        CHECK(primeIterator.begin() == primeIterator.end());
-    }
-
-    SUBCASE("Test adding and removing large number of elements")
-    {
-        MagicalContainer container;
-
-        const int numElements = 10000;
-
-        // Add elements
-        for (int i = 0; i < numElements; ++i)
-        {
-            container.addElement(i);
-        }
-
-        CHECK(container.size() == numElements);
-
-        // Remove even elements
-        for (int i = 0; i < numElements; i += 2)
-        {
-            container.removeElement(i);
-        }
-
-        CHECK(container.size() == numElements / 2);
-
-        // Remove remaining elements
-        for (int i = 1; i < numElements; i += 2)
-        {
-            container.removeElement(i);
-        }
-
-        CHECK(container.size() == 0);
-    }
-
-    SUBCASE("Test accessing iterators after modifying the container")
-    {
-        MagicalContainer container;
-        container.addElement(5);
-        container.addElement(10);
-        container.addElement(3);
-
-        AscendingIterator ascIterator(container);
-        SideCrossIterator sideCrossIterator(container);
-        PrimeIterator primeIterator(container);
-
-        // Modify container after getting iterators
-        container.addElement(7);
-        container.removeElement(10);
-
-        int expectedAscending[] = {3, 5, 7};
-        int expectedSideCross[] = {5, 3, 7};
-        int expectedPrime[] = {7};
-
-        int index = 0;
-
-        for (int *it = ascIterator.begin(); it != ascIterator.end(); ++it)
-        {
-            CHECK(*it == expectedAscending[index]);
-            ++index;
-        }
-
-        index = 0;
-
-        for (int *it = sideCrossIterator.begin(); it != sideCrossIterator.end(); ++it)
-        {
-            CHECK(*it == expectedSideCross[index]);
-            ++index;
-        }
-
-        index = 0;
-
-        for (int *it = primeIterator.begin(); it != primeIterator.end(); ++it)
-        {
-            CHECK(*it == expectedPrime[index]);
-            ++index;
-        }
-    }
-
-    // Add more test cases here...
-
-    SUBCASE("Test throwing exception when removing non-existing element")
-    {
-        MagicalContainer container;
-        container.addElement(5);
-        container.addElement(10);
-
-        CHECK(container.size() == 2);
-
-        CHECK_THROWS_AS(container.removeElement(7), std::range_error);
-        CHECK(container.size() == 2);
-    }
-
-    SUBCASE("Test throwing exception when accessing iterator with empty container")
-    {
-        MagicalContainer container;
-        AscendingIterator ascIterator(container);
-
-        CHECK_THROWS_AS(ascIterator.begin(), std::logic_error);
-        CHECK_THROWS_AS(ascIterator.end(), std::logic_error);
-    }
-    SUBCASE("Test iterator behavior after modifying container during iteration")
-    {
-        MagicalContainer container;
-        container.addElement(5);
-        container.addElement(10);
-        container.addElement(3);
-
-        AscendingIterator ascIterator(container);
-
-        // Remove an element during iteration
-        container.removeElement(10);
-
-        int expectedValues[] = {3, 5};
-        int index = 0;
-        for (int *it = ascIterator.begin(); it != ascIterator.end(); ++it)
-        {
-            CHECK(*it == expectedValues[index]);
-            ++index;
-        }
-    }
-
-    SUBCASE("Test iterator behavior after adding element during iteration")
-    {
-        MagicalContainer container;
-        container.addElement(5);
-        container.addElement(10);
-        container.addElement(3);
-
-        SideCrossIterator sideCrossIterator(container);
-
-        // Add an element during iteration
-        container.addElement(7);
-
-        int expectedValues[] = {5, 10, 3, 7};
-        int index = 0;
-        for (int *it = sideCrossIterator.begin(); it != sideCrossIterator.end(); ++it)
-        {
-            CHECK(*it == expectedValues[index]);
-            ++index;
-        }
-    }
-
-    SUBCASE("Test multiple iterators on the same container")
-    {
-        MagicalContainer container;
-        container.addElement(5);
-        container.addElement(10);
-        container.addElement(3);
-
-        AscendingIterator ascIterator(container);
-        SideCrossIterator sideCrossIterator(container);
-
-        // Iterate over elements using AscendingIterator
-        int expectedAscending[] = {3, 5, 10};
-        int ascIndex = 0;
-        for (int *it = ascIterator.begin(); it != ascIterator.end(); ++it)
-        {
-            CHECK(*it == expectedAscending[ascIndex]);
-            ++ascIndex;
-        }
-
-        // Iterate over elements using SideCrossIterator
-        int expectedSideCross[] = {5, 10, 3};
-        int sideCrossIndex = 0;
-        for (int *it = sideCrossIterator.begin(); it != sideCrossIterator.end(); ++it)
-        {
-            CHECK(*it == expectedSideCross[sideCrossIndex]);
-            ++sideCrossIndex;
-        }
+        // Checking if the current value matches the expected value
+        CHECK(*it == expected[index]);
+        ++index;
+        ++it;
     }
 }
+
+TEST_CASE("Side cross iterator")
+{
+    // Creating an instance of MagicalContainer
+    MagicalContainer container;
+    
+    // Adding four elements to the container
+    container.addElement(42);
+    container.addElement(10);
+    container.addElement(20);
+    container.addElement(30);
+    
+    // Creating an array of expected values
+    int expected[] = {42, 30, 10, 20};
+    int index = 0;
+    
+    MagicalContainer::SideCrossIterator it(container);
+
+    // Iterating over the container using a side cross iterator
+    while (*it != *(container.end()))
+    {
+        // Checking if the current value matches the expected value
+        CHECK(*it == expected[index]);
+        ++index;
+        ++it;
+    }
+}
+
+TEST_CASE("Prime iterator")
+{
+    // Creating an instance of MagicalContainer
+    MagicalContainer container;
+    
+    // Adding four elements to the container
+    container.addElement(42);
+    container.addElement(10);
+    container.addElement(20);
+    container.addElement(7);
+    
+    // Creating an array of expected values
+    int expected[] = {7};
+    int index = 0;
+    
+    MagicalContainer::PrimeIterator it(container);
+
+    // Iterating over the container using a prime iterator
+    while (*it != *(container.end()))
+    {
+        // Checking if the current value matches the expected value
+        CHECK(*it == expected[index]);
+        ++index;
+        ++it;
+    }
+}
+
+TEST_CASE("Iterator comparison")
+{
+    // Creating an instance of MagicalContainer
+    MagicalContainer container;
+    
+    // Adding four elements to the container
+    container.addElement(42);
+    container.addElement(10);
+    container.addElement(20);
+    container.addElement(30);
+    
+    // Creating iterators for comparison
+    MagicalContainer::AscendingIterator ascIt1(container);
+    MagicalContainer::AscendingIterator ascIt2(container);
+    
+    CHECK(ascIt1.begin() == ascIt2.begin());
+
+    MagicalContainer::SideCrossIterator sideIt1(container);
+    MagicalContainer::SideCrossIterator sideIt2(container);
+    CHECK(sideIt1.begin() == sideIt2.begin());
+
+    MagicalContainer::PrimeIterator primeIt1(container);
+    MagicalContainer::PrimeIterator primeIt2(container);
+    CHECK(primeIt1 == primeIt2);
+
+    // Incrementing ascIt2
+    ++ascIt2;
+    
+    // Checking iterator comparison and ordering
+    CHECK(ascIt1 != ascIt2);
+    CHECK(ascIt1 < ascIt2);
+    CHECK(ascIt1 <= ascIt2);
+    CHECK(ascIt2 > ascIt1);
+    CHECK(ascIt2 >= ascIt1);
+
+    // Incrementing sideIt2
+    ++sideIt2;
+    
+    // Checking iterator comparison and ordering
+    CHECK(sideIt1 != sideIt2);
+    CHECK(sideIt1 < sideIt2);
+    CHECK(sideIt1 <= sideIt2);
+    CHECK(sideIt2 > sideIt1);
+    CHECK(sideIt2 >= sideIt1);
+
+    // Incrementing primeIt2
+    ++primeIt2;
+    
+    // Checking iterator comparison and ordering
+    CHECK(primeIt1 != primeIt2);
+    CHECK(primeIt1 < primeIt2);
+    CHECK(primeIt1 <= primeIt2);
+    CHECK(primeIt2 > primeIt1);
+    CHECK(primeIt2 >= primeIt1);
+}
+
+TEST_CASE("Multiple iterators")
+{
+    // Creating an instance of MagicalContainer
+    MagicalContainer container;
+    
+    // Adding four elements to the container
+    container.addElement(42);
+    container.addElement(10);
+    container.addElement(20);
+    container.addElement(30);
+
+    // Creating iterators
+    MagicalContainer::SideCrossIterator ascIt1(container);
+    MagicalContainer::SideCrossIterator ascIt2(container);
+
+    // Modifying the value using ascIt1
+    *ascIt1 = 100;
+    
+    // Checking if the value is updated for ascIt2
+    CHECK(*ascIt2 == 100);
+}
+
+TEST_CASE("Ascending iterator (negative, positive)")
+{
+    // Creating an instance of MagicalContainer
+    MagicalContainer container;
+    
+    // Adding four elements to the container
+    container.addElement(-10);
+    container.addElement(20);
+    container.addElement(-30);
+    container.addElement(40);
+
+    // Creating an array of expected values
+    int expected[] = {-30, -10, 20, 40};
+    int index = 0;
+    
+    MagicalContainer::AscendingIterator it(container);
+
+    // Iterating over the container using an ascending iterator
+    while (*it != *(container.end()))
+    {
+        // Checking if the current value matches the expected value
+        CHECK(*it == expected[index]);
+        ++index;
+        ++it;
+
+    }
+}
+
+
